@@ -65,7 +65,7 @@ def start_game(bot, update):
 		game.start()
 		narrate(bot,update,"-----GAME STARTED-----")
 		narrate(bot,update,game.getBoardString())
-		narrate(bot,update,"It is now '{} ({})'s turn to move",game.current_player.name,game.current_player.token)
+		narrate(bot,update,"It is now '{}({})'s turn to	move".format(game.players[game.current_player].token,game.players[game.current_player].name))
 	except GameStartedError:
 		update.message.reply_text("The game has already started")
 	except TooFewPlayersError:	
@@ -73,24 +73,30 @@ def start_game(bot, update):
 
 		
 def move(bot, update, args):
+	#prevent move after game ends
 	if update.message.chat_id not in games:
 		update.message.reply_text("There is no game on this chat. Start a new game with /new")
 		return
 	game = games[update.message.chat_id]	
+	user_id = get_user_id(update)
+	if len(args) != 1:
+		update.message.reply_text("Usage: /move (position)")
+		return
+	try:
+		int(args[0])
+	except ValueError:
+		update.message.reply_text("Usage: /move (position)")
+		return
+		
 	try: 
-		game.move(int(args[0]),players[user_id])
+		game.move(int(args[0]),user_id)
 		narrate(bot,update,game.getBoardString())
-		if game.checkWin(players[user_id]):
-			narrate(bot,update,"CONGRATULATIONS! {} has won!".format(players[user_id]))
+		#add whos turn to move
+		if game.checkWin(user_id):
+			narrate(bot,update,"CONGRATULATIONS! {} has	won as {}!".format(game.players[user_id].name,game.players[user_id].token))
 			return
-		if game.current_player == 'X':
-			game.current_player = 'O'
-			narrate(bot,update,"It is now 'O's turn to move")
-		elif game.current_player == 'O':
-			game.current_player = 'X'
-			narrate(bot,update,"It is now 'X's turn to move")
-		else:
-			update.message.reply_text("Error with player token!")
+		game.next()
+		narrate(bot,update,"It is now '{}({})'s turn to	move".format(game.players[game.current_player].token,game.players[game.current_player].name))
 	except NotInGameError:
 		update.message.reply_text("You are not in the game")
 	except InvalidMoveError:
@@ -159,6 +165,12 @@ def unjoin(bot, update):
 	except GameStartedError:
 		update.message.reply_text("Game has already started")
 
+def help(bot, update):
+	update.message.reply_text("Commands:\n/new - New Game\n/join - Join game\n/start - Start game\n/players - Show players\n/move (number from 1 to board size ^ 2) - Move\n/delete - Delete game\n/unjoin - Unjoin game")
+
+def iloveshijie(bot,update):
+	narrate(bot,update,"I LOVE YOU SHIJIE! <3")
+
 def main():
 	dispatcher.add_handler(CommandHandler('join',join_game))
 	dispatcher.add_handler(CommandHandler('start',start_game))
@@ -167,6 +179,8 @@ def main():
 	dispatcher.add_handler(CommandHandler('new',new_game,pass_args=True))
 	dispatcher.add_handler(CommandHandler('delete',delete))
 	dispatcher.add_handler(CommandHandler('unjoin',unjoin))
+	dispatcher.add_handler(CommandHandler('help',help))
+	dispatcher.add_handler(CommandHandler('iloveshijie',iloveshijie))
 	updater.start_polling()
 	updater.idle()
 	return

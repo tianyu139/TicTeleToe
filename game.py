@@ -52,6 +52,12 @@ class Game:
         else:
             raise InvalidMoveError()
 
+    def next(self):
+        for player_id in self.players:
+            if player_id != self.current_player:
+                self.current_player = player_id
+                return
+
     def add_player(self, player_id, name):
         if len(self.players) >= 2:
             raise PlayerLimitError()
@@ -61,7 +67,7 @@ class Game:
             token = random.choice(self.tokens)
         else:
             for p in self.players:
-                if p.token == self.tokens[0]:
+                if self.players[p].token == self.tokens[0]:
                     token = self.tokens[1]
                 else:
                     token = self.tokens[0]
@@ -82,7 +88,7 @@ class Game:
             raise GameStartedError()
         elif len(self.players) < 2:
             raise TooFewPlayersError()
-        self.current_player = self.players[random.choice(self.players.keys())]
+        self.current_player = random.choice(list(self.players.keys()))
         self.started = True
 
     def checkWin(self, player_id):
