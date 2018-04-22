@@ -1,10 +1,4 @@
-# uncompyle6 version 2.9.11
-# Python bytecode 3.5 (3350)
-# Decompiled from: Python 3.5.2 (default, Nov 17 2016, 17:05:23) 
-# [GCC 5.4.0 20160609]
-# Embedded file name: /home/tianyu/Programming/liubot_telegram/game.py
-# Compiled at: 2017-05-12 18:35:59
-# Size of source mod 2**32: 2682 bytes
+
 from exceptions import *
 from player import Player
 import random
@@ -109,4 +103,3 @@ class Game:
         if all((self.board[self.board_size - 1 - i][i] == token for i in range(0, self.board_size))):
             return True
         return False
-# okay decompiling __pycache__/game.cpython-35.pyc
